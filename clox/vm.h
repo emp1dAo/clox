@@ -22,6 +22,6 @@ void initVM();
 
 void freeVM();
 
-InterpretResult interpret(chunk* chunk);
+InterpretResult interpret(Chunk* chunk);
 
 #endif
