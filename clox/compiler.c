@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "common.h"
 #include "compiler.h"
@@ -8,11 +9,14 @@ typedef struct {
   Token current;
   Token previous;
   bool hadError;
+  bool panicMode;
 } Parser;
 
 Parser parser;
 
 static void errorAt(Token* token, const char* message) {
+  if (parser.panicMode) return;
+  parser.panicMode = true;
   fprintf(stderr, "[line %d] Error", token -> line);
 
   if (token -> type == TOKEN_EOF) {
@@ -36,7 +40,7 @@ static void errorAtCurrent(const char* message) {
 }
 
 static void advance() {
-  paser.previous = parser.current;
+  parser.previous = parser.current;
 
   for (;;) {
     parser.current = scanToken();
@@ -46,9 +50,23 @@ static void advance() {
   }
 }
 
+static void consume(TokenType type, const char* message) {
+  if (parser.current.type == type) {
+    advance();
+    return;
+  }
+
+  errorAtCurrent(message);
+}
+
 bool compile(const char* source, Chunk* chunk) {
   initScanner(source);
+
+  parser.hadError = false;
+  parser.panicMode = false;
+  
   advance();
   expression();
   consume(TOKEN_EOF, "Expect end of expression.");
+  return !parser.hadError;
 }
