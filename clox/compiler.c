@@ -38,6 +38,8 @@ typedef struct {
   Precedence precedence;
 } ParseRule;
 
+ParseRule rules[];
+
 Parser parser;
 Chunk* compilingChunk;
 
@@ -143,6 +145,12 @@ static void parsePrecedence(Precedence precedence) {
   }
 
   prefixRule();
+
+  while (precedence <= getRule(parser.current.type) -> precedence) {
+    advance();
+    ParseFn infixRule = getRule(parser.previous.type) -> infix;
+    infixRule();
+  }
 }
 
 static ParseRule* getRule(TokenType type) {
@@ -151,8 +159,8 @@ static ParseRule* getRule(TokenType type) {
 
 static void binary() {
   TokenType operatorType = parser.previous.type;
-  ParserRule* rule = getRule(operatorType);
-  parsePrecedence((Precedence))(rule -> precedence + 1);
+  ParseRule* rule = getRule(operatorType);
+  parsePrecedence((Precedence)(rule -> precedence + 1));
 
   switch (operatorType) {
     case TOKEN_PLUS:          emitByte(OP_ADD); break;

@@ -34,7 +34,7 @@ static bool isAtEnd() {
 
 static char advance() {
   scanner.current ++;
-  return sacnner.current[-1];
+  return scanner.current[-1];
 }
 
 static char peek() {
@@ -53,11 +53,11 @@ static bool match(char expected) {
   return true;
 }
 
-static Token makeToken(Token type) {
+static Token makeToken(TokenType type) {
   Token token;
-  token.type = TOKEN_ERROR;
-  token.start = message;
-  token.length = (int)strlen(message);
+  token.type = type;
+  token.start = scanner.start;
+  token.length = (int)(scanner.current - scanner.start);
   token.line = scanner.line;
   return token;
 }
@@ -87,7 +87,7 @@ static void skipWhitespace() {
     case '/':
       if (peekNext() == '/') {
 	// A comment goes until the end of the line.
-	while (peek() != '\n' && !isAtend()) advance();
+	while (peek() != '\n' && !isAtEnd()) advance();
       } else {
 	return;
       }
@@ -100,7 +100,7 @@ static void skipWhitespace() {
 
 static TokenType checkKeyword(int start, int length,
 			      const char* rest, TokenType type) {
-  if (scanner.current - scanner.start = start + length &&
+  if (scanner.current - scanner.start == start + length &&
       memcmp(scanner.start + start, rest, length) == 0) {
     return type;
   }
@@ -179,7 +179,7 @@ Token scanToken() {
   skipWhitespace();
   scanner.start = scanner.current;
 
-  if (isAtend()) return makeToken(TOKEN_EOF);
+  if (isAtEnd()) return makeToken(TOKEN_EOF);
 
   char c = advance();
   if (isAlpha(c)) return identifier();
