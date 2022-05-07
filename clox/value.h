@@ -11,6 +11,14 @@ typedef struct {
   Value* values;
 } ValueArray;
 
+typedef struct {
+  ValueType type;
+  union {
+    bool boolean;
+    double number;
+  } as; 
+} Value;
+
 void initValueArray(ValueArray* array);
 
 void writeValueArray(ValueArray* array, Value value);
