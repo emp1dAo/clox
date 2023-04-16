@@ -12,7 +12,7 @@ typedef struct {
 
 Scanner scanner;
 
-void initScanner(const char* source) {
+void initScanner(const char* source) {  
   scanner.start = source;
   scanner.current = source;
   scanner.line = 1;
@@ -86,10 +86,10 @@ static void skipWhitespace() {
       break;
     case '/':
       if (peekNext() == '/') {
-	// A comment goes until the end of the line.
-	while (peek() != '\n' && !isAtEnd()) advance();
+        // A comment goes until the end of the line.
+        while (peek() != '\n' && !isAtEnd()) advance();
       } else {
-	return;
+        return;
       }
       break;
     default:
@@ -99,7 +99,7 @@ static void skipWhitespace() {
 }
 
 static TokenType checkKeyword(int start, int length,
-			      const char* rest, TokenType type) {
+                              const char* rest, TokenType type) {
   if (scanner.current - scanner.start == start + length &&
       memcmp(scanner.start + start, rest, length) == 0) {
     return type;
@@ -153,7 +153,7 @@ static Token number() {
 
   // Look for a fractional part.
   if (peek() == '.' && isDigit(peekNext())) {
-    // Consume thr "/".
+    // Consume the "/".
     advance();
 
     while (isDigit(peek())) advance();
@@ -198,17 +198,13 @@ Token scanToken() {
   case '/': return makeToken(TOKEN_SLASH);
   case '*': return makeToken(TOKEN_STAR);
   case '!':
-    return makeToken(
-                     match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
+    return makeToken(match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
   case '=':
-    return makeToken(
-		     match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
+    return makeToken(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
   case '<':
-    return makeToken(
-                     match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
+    return makeToken(match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
   case '>':
-    return makeToken(
-                     match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
+    return makeToken(match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
   case '"': return string();
   }
   
