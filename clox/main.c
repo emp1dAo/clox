@@ -32,7 +32,13 @@ static char* readFile(const char* path) {
   size_t fileSize = ftell(file);
   rewind(file);
 
+  // can't allocate enough memory to read the lox script;
   char* buffer = (char*)malloc(fileSize + 1);
+  if (buffer == NULL) {
+    fprintf(stderr, "Not enough memory to read \"%s\".\n", path);
+  }
+
+  // the read itself may fail;
   size_t bytesRead = fread(buffer, sizeof(char), fileSize, file);
   if (bytesRead < fileSize) {
     fprintf(stderr, "Could not read file \"%s\".\n", path);
@@ -56,7 +62,6 @@ static void runFile(const char* path) {
 
 int main(int argc, const char* argv[]) {
   initVM();
-  
   if (argc == 1) {
     repl();
   } else if (argc == 2) {
