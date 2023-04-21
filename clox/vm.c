@@ -122,6 +122,8 @@ static InterpretResult run() {
       push(constant);
       break;
     }
+    case OP_GREATER:  BINARY_OP(BOOL_VAL, >); break;
+    case OP_LESS:     BINARY_OP(BOOL_VAL, <); break;
     case OP_NIL: push(NIL_VAL); break;
     case OP_TRUE: push(BOOL_VAL(true)); break;
     case OP_FALSE: push(BOOL_VAL(false)); break;
@@ -209,6 +211,11 @@ static InterpretResult run() {
     case OP_JUMP_IF_FALSE: {
       uint16_t offset = READ_SHORT();
       if (isFalsey(peek(0))) vm.ip += offset;
+      break;
+    }
+    case OP_LOOP: {
+      uint16_t offset = READ_SHORT();
+      vm.ip -= offset;
       break;
     }
     case OP_RETURN: {
