@@ -4,6 +4,7 @@
 #include "object.h"
 #include "table.h"
 #include "value.h"
+#include <stddef.h>
 
 #define FRAMES_MAX 64
 #define STACK_MAX (FRAMES_MAX * UINT8_COUNT)
@@ -19,7 +20,7 @@ typedef struct {
   /*
     Chunk* chunk;
   
-   // IP means instruction pointer.
+    // IP means instruction pointer.
     // x86, x64, and the CLR call it “IP”. 68k, PowerPC, ARM, p-code
     // and the JVM call it “PC”, for program counter.
     uint8_t* ip;
@@ -33,7 +34,12 @@ typedef struct {
   Table globals;
   Table strings;
   ObjUpvalue* openUpvalues;
+  size_t bytesAllocated;
+  size_t nextGC;
   Obj* objects;
+  int grayCount;
+  int grayCapacity;
+  Obj** grayStack;
 } VM;
 
 typedef enum {
