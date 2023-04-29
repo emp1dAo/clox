@@ -85,7 +85,23 @@ static void skipWhitespace() {
       advance();
       break;
     case '/':
-      if (peekNext() == '/') {
+      if (peekNext() == '*') {
+	// Multiline comments
+	advance();
+	advance();
+	while (true) {
+	  while (peek() != '*' && !isAtEnd()) {
+	    if ((c = advance()) == '\n') scanner.line ++;
+	  }
+
+	  if (isAtEnd()) return;
+	  if (peekNext() == '/') break;
+	  advance();
+	}
+	advance();
+	advance();
+      }
+      else if (peekNext() == '/') {
         // A comment goes until the end of the line.
         while (peek() != '\n' && !isAtEnd()) advance();
       } else {
