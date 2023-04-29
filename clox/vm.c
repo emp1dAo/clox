@@ -252,18 +252,43 @@ static void concatenate() {
 static InterpretResult run() {
   CallFrame* frame = &vm.frames[vm.frameCount - 1];
   //==> define begin
-  #define READ_BYTE() (*frame -> ip ++)
   
+  /* A Virtual Machine run < Calls and Functions run
+     #define READ_BYTE() (*vm.ip++)
+  */
+  #define READ_BYTE() (*frame -> ip ++)
+
+  /* A Virtual Machine read-constant < Calls and Functions run
+     #define READ_CONSTANT() \
+     (vm.chunk->constants.values[READ_BYTE()])
+  */
+
+  /* Jumping Back and Forth read-short < Calls and Functions run
+     #define READ_SHORT() \
+     (vm.ip += 2, (uint16_t)((vm.ip[-2] << 8) | vm.ip[-1]))
+  */
   #define READ_SHORT() \
     (frame -> ip += 2, \
       (uint16_t)((frame -> ip[-2] << 8) | frame -> ip[-1]))
-  
+
+  /* Calls and Functions run < Closures read-constant
+     #define READ_CONSTANT()					\
+     (frame->function->chunk.constants.values[READ_BYTE()])
+  */
   #define READ_CONSTANT() \
     (frame -> closure -> function -> chunk.constants.values[READ_BYTE()])
   
   #define READ_STRING() \
     AS_STRING(READ_CONSTANT())
-  
+
+  /* A Virtual Machine binary-op < Types of Values binary-op
+     #define BINARY_OP(op)			\
+     do {					\
+       double b = pop(); \
+       double a = pop(); \
+       push(a op b); \
+       } while (false)
+  */
   #define BINARY_OP(valueType, op) \
     do { \
       if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) { \
@@ -276,9 +301,9 @@ static InterpretResult run() {
     } while(false)
   //<== define end
 
-  #ifdef DEBUG_PRINT_CODE
+
   for(;;) {
-    
+#ifdef DEBUG_PRINT_CODE    
     printf("          ");
     for (Value* slot = vm.stack; slot < vm.stackTop; slot ++) {
       printf("[ ");
@@ -292,8 +317,8 @@ static InterpretResult run() {
     */
     disassembleInstruction(&frame -> closure -> function -> chunk,
 			   (int)(frame -> ip - frame -> closure -> function -> chunk.code));
+#endif
     
-    #endif
     uint8_t instruction;
     
     switch (instruction = READ_BYTE()) {
